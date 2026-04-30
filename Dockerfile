@@ -15,22 +15,22 @@ RUN npm run build
 
 # Stage 2: Runner
 FROM node:20-slim AS runner
-
 WORKDIR /app
 
-COPY --from=builder /app/build ./build
+# Salin package json dan node_modules
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/build ./build
 
-# Sesuaikan folder ini dengan lokasi file skema Drizzle kamu
-# Jika foldernya ada di src/lib/db, ganti menjadi: COPY --from=builder /app/src/lib/db ./src/lib/db
-COPY --from=builder /app/drizzle ./drizzle 
+# Salin seluruh isi app (termasuk src dan skema) 
+# tapi abaikan yang tidak perlu lewat .dockerignore
 COPY --from=builder /app/drizzle.config.ts ./
+COPY --from=builder /app/src ./src
+
+# Opsional: Jika kamu pakai folder migrations, salin juga
+# COPY --from=builder /app/drizzle ./drizzle 
 
 ENV NODE_ENV=production
-
 EXPOSE 3000
 
-# Menggunakan format JSON (Exec form) untuk CMD sesuai saran log error kamu
-# Kita bungkus dalam shell agar bisa menjalankan dua perintah sekaligus
 CMD ["sh", "-c", "npx drizzle-kit push && node build"]
