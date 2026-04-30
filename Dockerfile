@@ -35,3 +35,4 @@ ENV NODE_ENV=production
 EXPOSE 3000
 
 CMD ["sh", "-c", "npx drizzle-kit push && npx tsx seed-db.ts && node build"]
+#
