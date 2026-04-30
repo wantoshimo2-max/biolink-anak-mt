@@ -38,3 +38,4 @@ ENV PORT=3000
 USER node
 
 CMD npx -y drizzle-kit@0.31.10 push && node build
+#asdsad
