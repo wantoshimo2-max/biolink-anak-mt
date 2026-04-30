@@ -1,5 +1,4 @@
 import postgres from 'postgres';
-import 'dotenv/config';
 
 async function test() {
     const dbUrl = process.env.DATABASE_URL;
