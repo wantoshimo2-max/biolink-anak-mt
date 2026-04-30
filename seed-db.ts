@@ -16,8 +16,8 @@ async function seed() {
 
     // 1. Insert Bio Config
     await db.insert(schema.bioConfig).values({
-        siteTitle: 'Premium Bio Link',
-        metaDescription: 'A modern glassmorphism bio link page',
+        siteTitle: 'Arwanagaming Situs Resmi Terpercaya 2026',
+        metaDescription: 'Arwanagaming adalah sebuah platform hiburan daring yang berfokus pada layanan perjudian online, mencakup berbagai jenis permainan seperti slot, taruhan olahraga, dan kasino siaran langsung (live casino).',
         logoUrl: '/images/logo-arwanagaming.png',
         logoLink: 'https://arwanagaming.live/',
         bioTitle: 'ArwanaGaming',
