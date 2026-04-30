@@ -28,11 +28,16 @@ WORKDIR /app
 COPY --from=builder --chown=node:node /app/node_modules ./node_modules
 COPY --from=builder --chown=node:node /app/build ./build
 COPY --from=builder --chown=node:node /app/package.json ./package.json
-COPY --from=builder --chown=node:node /app/drizzle.config.ts ./drizzle.config.ts
-COPY --from=builder --chown=node:node /app/src/lib/server/db ./src/lib/server/db
+
+# Environment variables
 ENV NODE_ENV=production
 ENV PORT=3000
+
+# Expose the application port
 EXPOSE 3000
+
+# Switch to non-root user
 USER node
-# 2. Tambahkan perintah push sebelum 'node build'
-CMD ["sh", "-c", "npx drizzle-kit push && node build"]
+
+# Start the application
+CMD ["node", "build"]
