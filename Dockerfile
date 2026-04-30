@@ -1,38 +1,43 @@
-# Stage 1: Build
-FROM node:20-slim AS builder
+# Build stage
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Install dependencies terlebih dahulu (untuk caching)
+# Copy package files
 COPY package*.json ./
-RUN npm install
 
-# Copy source code
+# Install all dependencies (including devDependencies for build)
+RUN npm ci
+
+# Copy the rest of the application
 COPY . .
 
-# Build aplikasi SvelteKit
+# Build the application
 RUN npm run build
 
-# Stage 2: Runner
-FROM node:20-slim AS runner
+# Remove development dependencies
+RUN npm prune --production
+
+
+# Runtime stage
+FROM node:20-alpine
+
 WORKDIR /app
 
-# Salin package json dan node_modules
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/build ./build
+# Copy built application and dependencies, setting ownership to 'node'
+COPY --from=builder --chown=node:node /app/node_modules ./node_modules
+COPY --from=builder --chown=node:node /app/build ./build
+COPY --from=builder --chown=node:node /app/package.json ./package.json
 
-# Salin seluruh isi app (termasuk src dan skema) 
-# tapi abaikan yang tidak perlu lewat .dockerignore
-COPY --from=builder /app/drizzle.config.ts ./
-COPY --from=builder /app/src ./src
-COPY --from=builder /app/seed-db.ts ./seed-db.ts
-
-# Opsional: Jika kamu pakai folder migrations, salin juga
-# COPY --from=builder /app/drizzle ./drizzle 
-
+# Environment variables
 ENV NODE_ENV=production
+ENV PORT=3000
+
+# Expose the application port
 EXPOSE 3000
 
-CMD ["sh", "-c", "npx drizzle-kit push --force && npx tsx seed-db.ts && node build"]
-#
+# Switch to non-root user
+USER node
+
+# Start the application
+CMD ["node", "build"]
