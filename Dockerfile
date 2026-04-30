@@ -35,4 +35,4 @@ ENV PORT=3000
 USER node
 
 # JALUR AMAN: Panggil binari langsung, baru jalankan app
-CMD ./node_modules/.bin/drizzle-kit push && node build
+CMD npx drizzle-kit push && node build
