@@ -1,47 +1,36 @@
-# Build stage
-FROM node:20-alpine AS builder
+# Stage 1: Build
+FROM node:20-slim AS builder
 
 WORKDIR /app
 
-# Copy package files
+# Install dependencies terlebih dahulu (untuk caching)
 COPY package*.json ./
+RUN npm install
 
-# Install all dependencies (including devDependencies for build)
-RUN npm ci
-
-# Copy the rest of the application
+# Copy source code
 COPY . .
 
-# Build the application
+# Build aplikasi SvelteKit
 RUN npm run build
 
-# Remove development dependencies
-RUN npm prune --production
-
-
-# Runtime stage
-FROM node:20-alpine
+# Stage 2: Runner
+FROM node:20-slim AS runner
 
 WORKDIR /app
 
-# Copy built application and dependencies, setting ownership to 'node'
-COPY --from=builder --chown=node:node /app/node_modules ./node_modules
-COPY --from=builder --chown=node:node /app/build ./build
-COPY --from=builder --chown=node:node /app/package.json ./package.json
-# Tambahkan kembali file ini (PENTING!)
-COPY --from=builder --chown=node:node /app/drizzle.config.ts ./drizzle.config.ts
-COPY --from=builder --chown=node:node /app/src/lib/server/db ./src/lib/server/db
-COPY --from=builder --chown=node:node /app/debug-db.js ./debug-db.js
+# Copy hasil build dan file yang diperlukan dari stage builder
+COPY --from=builder /app/build ./build
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/drizzle ./drizzle
+COPY --from=builder /app/drizzle.config.ts ./
 
-# Environment variables
+# Set environment variable untuk production
 ENV NODE_ENV=production
-ENV PORT=3000
 
-# Expose the application port
+# Expose port (SvelteKit default biasanya 3000 atau sesuai konfigurasi adapter-node)
 EXPOSE 3000
 
-# Switch to non-root user
-USER node
-
-# Start the application with debug test and push
-CMD ["sh", "-c", "node debug-db.js && npx drizzle-kit push --force && node build"]
+# Jalankan migrasi/push sebelum menjalankan aplikasi
+# Pastikan DB_URL sudah ada di environment variables saat container running
+CMD npx drizzle-kit push && node build
