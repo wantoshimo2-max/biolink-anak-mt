@@ -34,5 +34,5 @@ COPY --from=builder /app/seed-db.ts ./seed-db.ts
 ENV NODE_ENV=production
 EXPOSE 3000
 
-CMD ["sh", "-c", "npx drizzle-kit push && npx tsx seed-db.ts && node build"]
+CMD ["sh", "-c", "npx drizzle-kit push --force && npx tsx seed-db.ts && node build"]
 #
