@@ -31,11 +31,17 @@ COPY --from=builder --chown=node:node /app/package.json ./package.json
 # Tambahkan kembali file ini (PENTING!)
 COPY --from=builder --chown=node:node /app/drizzle.config.ts ./drizzle.config.ts
 COPY --from=builder --chown=node:node /app/src/lib/server/db ./src/lib/server/db
-# Gunakan CMD debug ini
+COPY --from=builder --chown=node:node /app/debug-db.js ./debug-db.js
 
+# Environment variables
 ENV NODE_ENV=production
 ENV PORT=3000
+
+# Expose the application port
 EXPOSE 3000
+
+# Switch to non-root user
 USER node
-# 2. Tambahkan perintah push sebelum 'node build'
-CMD ["sh", "-c", "npx drizzle-kit push --force --verbose && node build"]
+
+# Start the application with debug test and push
+CMD ["sh", "-c", "node debug-db.js && npx drizzle-kit push --force && node build"]
