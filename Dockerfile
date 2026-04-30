@@ -6,7 +6,7 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install all dependencies (including devDependencies for build)
+# Install all dependencies
 RUN npm ci
 
 # Copy the rest of the application
@@ -15,24 +15,32 @@ COPY . .
 # Build the application
 RUN npm run build
 
-# Remove development dependencies
+# Remove development dependencies (Drizzle aman karena sudah dipindah ke dependencies)
 RUN npm prune --production
 
 
 # Runtime stage
 FROM node:20-alpine
+
 WORKDIR /app
 
-# Ambil file yang dibutuhkan
+# Copy built application and dependencies
 COPY --from=builder --chown=node:node /app/node_modules ./node_modules
 COPY --from=builder --chown=node:node /app/build ./build
 COPY --from=builder --chown=node:node /app/package.json ./package.json
-# Copy config drizzle supaya bisa dibaca saat start
+
+# --- TAMBAHAN: Copy file config drizzle agar bisa dibaca saat push ---
 COPY --from=builder --chown=node:node /app/drizzle.config.ts ./drizzle.config.ts
 
+# Environment variables
 ENV NODE_ENV=production
 ENV PORT=3000
+
+# Expose the application port
+EXPOSE 3000
+
+# Switch to non-root user
 USER node
 
-# JALUR AMAN: Panggil binari langsung, baru jalankan app
-CMD npx drizzle-kit push && node build
+# Tambahkan flag -y agar tidak minta konfirmasi (y/n) dan tentukan versinya
+CMD npx -y drizzle-kit@0.31.10 push && node build
