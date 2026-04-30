@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { fade, fly, scale } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
+	import * as LucideIcons from 'lucide-svelte';
 	import {
 		Trophy,
 		Zap,
@@ -12,6 +13,10 @@
 		ArrowUpRight,
 		ExternalLink
 	} from 'lucide-svelte';
+	import { enhance } from '$app/forms';
+
+	let { data } = $props();
+	// Gunakan data langsung agar reaktif di Svelte 5
 
 	let mounted = $state(false);
 
@@ -19,14 +24,10 @@
 		mounted = true;
 	});
 
-	const targetLink = 'https://arwanagaming.live/';
-
-	const buttons = [
-		{ name: 'RESULT', icon: Trophy, link: targetLink, color: 'hover:text-yellow-500' },
-		{ name: 'PREDIKSI', icon: Zap, link: targetLink, color: 'hover:text-blue-400' },
-		{ name: 'RTP SLOT', icon: Gauge, link: targetLink, color: 'hover:text-green-500' },
-		{ name: 'LIVE DRAW', icon: Tv, link: targetLink, color: 'hover:text-red-500' }
-	];
+	// Function to get icon component by name
+	function getIconComponent(name: string) {
+		return (LucideIcons as any)[name] || LucideIcons.ExternalLink;
+	}
 
 	// Konfigurasi Salju (Ditingkatkan)
 	const snowflakes = Array.from({ length: 60 }).map((_, i) => ({
@@ -40,8 +41,11 @@
 </script>
 
 <svelte:head>
-	<title>Premium Bio Link</title>
-	<meta name="description" content="A modern glassmorphism bio link page" />
+	<title>{data.config?.siteTitle || 'Premium Bio Link'}</title>
+	<meta name="description" content={data.config?.metaDescription || 'A modern glassmorphism bio link page'} />
+	{#if data.config?.headerScripts}
+		{@html data.config.headerScripts}
+	{/if}
 </svelte:head>
 
 <div
@@ -81,22 +85,26 @@
 		{#if mounted}
 			<!-- Header / Logo -->
 			<div in:fly={{ y: -20, duration: 800, delay: 200 }} class="mb-4 flex flex-col items-center">
-				<a href={targetLink} target="_blank" rel="noopener noreferrer" class="group relative mb-3 h-24 w-24 cursor-pointer">
-					<div
-						class="absolute inset-0 bg-red-600 opacity-30 blur-md transition-opacity duration-500 group-hover:opacity-60"
-					></div>
-					<img
-						src="/images/logo-arwanagaming.png"
-						alt="Logo"
-						class="relative h-full w-full object-contain"
-					/>
-				</a>
+				<form action="?/trackClick" method="POST" use:enhance>
+					<input type="hidden" name="target" value="logo" />
+					<button type="submit" class="group relative mb-3 block h-24 w-24 cursor-pointer">
+						<a href={data.config?.logoLink} target="_blank" rel="noopener noreferrer" class="block h-full w-full">
+							<div
+								class="absolute inset-0 bg-red-600 opacity-30 blur-md transition-opacity duration-500 group-hover:opacity-60"
+							></div>
+							<img
+								src={data.config?.logoUrl}
+								alt="Logo"
+								class="relative h-full w-full object-contain"
+							/>
+						</a>
+					</button>
+				</form>
 				<h1 class="flex items-center gap-2 text-xl font-bold tracking-tighter text-white uppercase">
-					ArwanaGaming
-					<!-- <span class="h-2 w-2 animate-ping bg-red-500"></span> -->
+					{data.config?.bioTitle || 'ArwanaGaming'}
 				</h1>
 				<p class="mt-0.5 px-4 text-center text-[11px] leading-relaxed font-light text-gray-400">
-					Official Digital Gateway of Arwanagaming.
+					{data.config?.bioDescription || 'Official Digital Gateway of Arwanagaming.'}
 				</p>
 			</div>
 
@@ -105,68 +113,87 @@
 				in:scale={{ start: 0.9, duration: 1000, delay: 400, easing: cubicOut }}
 				class="group relative mb-6 h-[350px] w-[350px]"
 			>
-				<div
-					class="absolute inset-0 bg-gradient-to-tr from-red-600/30 to-transparent blur-xl transition-all duration-700 group-hover:blur-2xl"
-				></div>
-				<div
-					class="relative h-full w-full overflow-hidden rounded-lg border border-white/10 shadow-2xl"
-				>
-					<img
-						src="/images/profile-arwanagaming.webp"
-						alt="Featured"
-						class="h-full w-full transform border object-cover transition-transform duration-1000 group-hover:scale-110"
-					/>
-					<!-- Shine Effect Overlay -->
-					<div class="shine-overlay"></div>
-
-					<div
-						class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60"
-					></div>
-				</div>
+				<form action="?/trackClick" method="POST" use:enhance class="h-full w-full">
+					<input type="hidden" name="target" value="featured_image" />
+					<button type="submit" class="h-full w-full">
+						<div
+							class="absolute inset-0 bg-gradient-to-tr from-red-600/30 to-transparent blur-xl transition-all duration-700 group-hover:blur-2xl"
+						></div>
+						<div
+							class="relative h-full w-full overflow-hidden rounded-lg border border-white/10 shadow-2xl"
+						>
+							<img
+								src={data.config?.featuredImageUrl}
+								alt="Featured"
+								class="h-full w-full transform border object-cover transition-transform duration-1000 group-hover:scale-110"
+							/>
+							<div class="shine-overlay"></div>
+							<div
+								class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60"
+							></div>
+						</div>
+					</button>
+				</form>
 			</div>
 
 			<!-- Auth Buttons -->
 			<div in:fly={{ y: 20, duration: 800, delay: 600 }} class="mb-4 flex w-full flex-row gap-2">
-				<a
-					href={targetLink}
-					target="_blank"
-					rel="noopener noreferrer"
-					class="btn-shake flex flex-1 transform cursor-pointer items-center justify-center gap-2 rounded-md border-2 border-white bg-red-600 py-3 text-xs font-bold text-white shadow-[0_0_20px_rgba(220,38,38,0.3)] transition-all duration-300 hover:bg-red-700 active:scale-95"
-				>
-					<LogIn size={16} />
-					LOGIN
-				</a>
-				<a
-					href={targetLink}
-					target="_blank"
-					rel="noopener noreferrer"
-					class="flex flex-1 transform cursor-pointer items-center justify-center gap-2 rounded-md border border-white/10 bg-white/5 py-3 text-xs font-bold text-white backdrop-blur-md transition-all duration-300 hover:bg-white/10 active:scale-95"
-				>
-					<UserPlus size={16} />
-					DAFTAR
-				</a>
+				<form action="?/trackClick" method="POST" use:enhance class="flex-1">
+					<input type="hidden" name="target" value="login_button" />
+					<button type="submit" class="w-full">
+						<a
+							href={data.config?.loginLink}
+							target="_blank"
+							rel="noopener noreferrer"
+							class="btn-shake flex transform cursor-pointer items-center justify-center gap-2 rounded-md border-2 border-white bg-red-600 py-3 text-xs font-bold text-white shadow-[0_0_20px_rgba(220,38,38,0.3)] transition-all duration-300 hover:bg-red-700 active:scale-95"
+						>
+							<LogIn size={16} />
+							LOGIN
+						</a>
+					</button>
+				</form>
+				<form action="?/trackClick" method="POST" use:enhance class="flex-1">
+					<input type="hidden" name="target" value="register_button" />
+					<button type="submit" class="w-full">
+						<a
+							href={data.config?.registerLink}
+							target="_blank"
+							rel="noopener noreferrer"
+							class="flex transform cursor-pointer items-center justify-center gap-2 rounded-md border border-white/10 bg-white/5 py-3 text-xs font-bold text-white backdrop-blur-md transition-all duration-300 hover:bg-white/10 active:scale-95"
+						>
+							<UserPlus size={16} />
+							DAFTAR
+						</a>
+					</button>
+				</form>
 			</div>
 
 			<!-- Social Links Grid -->
 			<div in:fly={{ y: 20, duration: 800, delay: 800 }} class="mb-6 grid w-full grid-cols-2 gap-2">
-				{#each buttons as btn, i}
-					<a
-						href={btn.link}
-						target="_blank"
-						rel="noopener noreferrer"
-						class="group relative flex flex-row items-center justify-between overflow-hidden rounded-md border border-white/5 bg-white/5 px-4 py-3.5 transition-all duration-500 hover:border-white/20 hover:bg-white/[0.08]"
-					>
-						<span
-							class="text-[10px] font-bold tracking-[0.1em] text-gray-300 uppercase transition-colors duration-300 group-hover:text-white"
-						>
-							{btn.name}
-						</span>
-						<div
-							class="flex items-center justify-center text-gray-400 transition-colors duration-500 {btn.color} group-hover:scale-110"
-						>
-							<btn.icon size={16} strokeWidth={2} />
-						</div>
-					</a>
+				{#each data.buttons as btn, i}
+					{@const IconComp = getIconComponent(btn.icon)}
+					<form action="?/trackClick" method="POST" use:enhance>
+						<input type="hidden" name="target" value={`btn_${btn.name}`} />
+						<button type="submit" class="w-full text-left">
+							<a
+								href={btn.link}
+								target="_blank"
+								rel="noopener noreferrer"
+								class="group relative flex flex-row items-center justify-between overflow-hidden rounded-md border border-white/5 bg-white/5 px-4 py-3.5 transition-all duration-500 hover:border-white/20 hover:bg-white/[0.08]"
+							>
+								<span
+									class="text-[10px] font-bold tracking-[0.1em] text-gray-300 uppercase transition-colors duration-300 group-hover:text-white"
+								>
+									{btn.name}
+								</span>
+								<div
+									class="flex items-center justify-center text-gray-400 transition-colors duration-500 {btn.color} group-hover:scale-110"
+								>
+									<IconComp size={16} strokeWidth={2} />
+								</div>
+							</a>
+						</button>
+					</form>
 				{/each}
 			</div>
 
@@ -176,7 +203,7 @@
 				class="mt-auto w-full border-t border-white/5 pt-4 pb-4 text-center"
 			>
 				<p class="text-[10px] font-medium tracking-[0.4em] text-gray-500 uppercase">
-					&copy; 2026 ARWANAGAMING <span class=" text-red-600">|</span> BOS SANDI
+					{@html data.config?.footerText || '&copy; 2026 ARWANAGAMING <span class=" text-red-600">|</span> BOS SANDI'}
 				</p>
 			</footer>
 		{/if}

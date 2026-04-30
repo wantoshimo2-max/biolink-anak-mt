@@ -7,3 +7,5 @@ export const task = pgTable('task', {
 });
 
 export * from './auth.schema';
+export * from './bio.schema';
+export * from './analytics.schema';
