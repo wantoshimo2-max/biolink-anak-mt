@@ -26,6 +26,7 @@ COPY --from=builder /app/build ./build
 # tapi abaikan yang tidak perlu lewat .dockerignore
 COPY --from=builder /app/drizzle.config.ts ./
 COPY --from=builder /app/src ./src
+COPY --from=builder /app/seed-db.ts ./seed-db.ts
 
 # Opsional: Jika kamu pakai folder migrations, salin juga
 # COPY --from=builder /app/drizzle ./drizzle 
@@ -33,4 +34,4 @@ COPY --from=builder /app/src ./src
 ENV NODE_ENV=production
 EXPOSE 3000
 
-CMD ["sh", "-c", "npx drizzle-kit push && node build"]
+CMD ["sh", "-c", "npx drizzle-kit push && npx tsx seed-db.ts && node build"]
