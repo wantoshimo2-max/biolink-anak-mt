@@ -31,6 +31,8 @@ ENV NODE_ENV=production
 # Expose port (SvelteKit default biasanya 3000 atau sesuai konfigurasi adapter-node)
 EXPOSE 3000
 
+USER node
+
 # Jalankan migrasi/push sebelum menjalankan aplikasi
 # Pastikan DB_URL sudah ada di environment variables saat container running
 CMD npx drizzle-kit push && node build
