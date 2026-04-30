@@ -81,7 +81,7 @@
 		{#if mounted}
 			<!-- Header / Logo -->
 			<div in:fly={{ y: -20, duration: 800, delay: 200 }} class="mb-4 flex flex-col items-center">
-				<a href={targetLink} class="group relative mb-3 h-24 w-24 cursor-pointer">
+				<a href={targetLink} target="_blank" rel="noopener noreferrer" class="group relative mb-3 h-24 w-24 cursor-pointer">
 					<div
 						class="absolute inset-0 bg-red-600 opacity-30 blur-md transition-opacity duration-500 group-hover:opacity-60"
 					></div>
@@ -129,6 +129,8 @@
 			<div in:fly={{ y: 20, duration: 800, delay: 600 }} class="mb-4 flex w-full flex-row gap-2">
 				<a
 					href={targetLink}
+					target="_blank"
+					rel="noopener noreferrer"
 					class="btn-shake flex flex-1 transform cursor-pointer items-center justify-center gap-2 rounded-md border-2 border-white bg-red-600 py-3 text-xs font-bold text-white shadow-[0_0_20px_rgba(220,38,38,0.3)] transition-all duration-300 hover:bg-red-700 active:scale-95"
 				>
 					<LogIn size={16} />
@@ -136,6 +138,8 @@
 				</a>
 				<a
 					href={targetLink}
+					target="_blank"
+					rel="noopener noreferrer"
 					class="flex flex-1 transform cursor-pointer items-center justify-center gap-2 rounded-md border border-white/10 bg-white/5 py-3 text-xs font-bold text-white backdrop-blur-md transition-all duration-300 hover:bg-white/10 active:scale-95"
 				>
 					<UserPlus size={16} />
@@ -148,6 +152,8 @@
 				{#each buttons as btn, i}
 					<a
 						href={btn.link}
+						target="_blank"
+						rel="noopener noreferrer"
 						class="group relative flex flex-row items-center justify-between overflow-hidden rounded-md border border-white/5 bg-white/5 px-4 py-3.5 transition-all duration-500 hover:border-white/20 hover:bg-white/[0.08]"
 					>
 						<span
